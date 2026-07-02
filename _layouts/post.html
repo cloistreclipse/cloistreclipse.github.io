@@ -1,0 +1,53 @@
+---
+layout: default
+---
+{% assign lang = page.lang | default: 'en' %}
+{% if lang == 'ar' %}
+  {% assign lang_posts = site.posts | where: "lang", "ar" %}
+{% else %}
+  {% assign lang_posts = site.posts | where_exp: "p", "p.lang != 'ar'" %}
+{% endif %}
+{% assign i = -1 %}
+{% for p in lang_posts %}{% if p.url == page.url %}{% assign i = forloop.index0 %}{% endif %}{% endfor %}
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <div class="post-meta">
+      {% assign words = content | strip_html | number_of_words %}
+      {% if lang == 'ar' %}
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y/%m/%d" }}</time>
+      <span class="sep">·</span>
+      <span>{{ words | divided_by: 180 | at_least: 1 }} دقائق قراءة</span>
+      {% else %}
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+      <span class="sep">·</span>
+      <span>{{ words | divided_by: 200 | at_least: 1 }} min read</span>
+      {% endif %}
+      {% if page.tags and page.tags.size > 0 %}
+      <span class="sep">·</span>
+      <span class="post-tags">
+        {% for tag in page.tags %}<span class="tag">#{{ tag }}</span>{% endfor %}
+      </span>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="post-content">
+    {{ content }}
+  </div>
+
+  {% if i > -1 %}
+  <nav class="post-nav">
+    {% assign older_i = i | plus: 1 %}
+    {% if older_i < lang_posts.size %}
+    {% assign older = lang_posts[older_i] %}
+    <a class="prev" href="{{ older.url | relative_url }}">{{ older.title }}</a>
+    {% endif %}
+    {% if i > 0 %}
+    {% assign newer_i = i | minus: 1 %}
+    {% assign newer = lang_posts[newer_i] %}
+    <a class="next" href="{{ newer.url | relative_url }}">{{ newer.title }}</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+</article>
